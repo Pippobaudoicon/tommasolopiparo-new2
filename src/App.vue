@@ -1,6 +1,7 @@
 <template>
   <div class="portfolio">
     <StarBackground />
+    <NavigationPlanet />
     <div class="content">
       <Typing />
       <SolarSystem />
@@ -14,6 +15,7 @@
   import SolarSystem from "./components/SolarSystem.vue";
   import SkillsTicker from "./components/SkillsTicker.vue";
   import Typing from "./components/Typing.vue";
+  import NavigationPlanet from "./components/NavigationPlanet.vue";
 </script>
 
 <style scoped>

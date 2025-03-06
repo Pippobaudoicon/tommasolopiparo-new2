@@ -46,6 +46,7 @@ const deleteSpeed = 40;
 const pauseBetweenSentences = 3500; // 1.5 seconds pause between sentences
 const showText = ref(false);
 const isTyping = ref(false);
+
 /**
  * Detects if a character is part of an emoji sequence and returns its full length.
  * Works for both emoji detection at start position and within an emoji.

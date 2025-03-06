@@ -3,33 +3,56 @@
     <!-- LinkedIn -->
     <a href="https://www.linkedin.com/in/tommasolopiparo" 
        target="_blank"
-       class="planet planet-1" 
+       class="planet-container planet-container-1" 
        @mouseenter="showTooltip($event, 'LinkedIn')" 
        @mouseleave="hideTooltip">
-      <img src="/logos/linkedin.svg" target="_blank" alt="LinkedIn" class="planet-icon">
+      <div class="planet planet-1">
+        <div class="planet-surface"></div>
+        <img src="/logos/linkedin.svg" target="_blank" alt="LinkedIn" class="planet-icon">
+      </div>
+      <div class="ring ring-outer ring-1"></div>
+      <div class="ring ring-inner ring-1"></div>
     </a>
+    
     <!-- GitHub -->
     <a href="https://github.com/pippobaudoicon" 
        target="_blank"
-       class="planet planet-2" 
+       class="planet-container planet-container-2" 
        @mouseenter="showTooltip($event, 'GitHub')" 
        @mouseleave="hideTooltip">
-      <img src="/logos/github.svg" target="_blank" alt="GitHub" class="planet-icon">
+      <div class="planet planet-2">
+        <div class="planet-surface"></div>
+        <img src="/logos/github.svg" target="_blank" alt="GitHub" class="planet-icon">
+      </div>
+      <div class="ring ring-outer ring-2"></div>
+      <div class="ring ring-inner ring-2"></div>
     </a>
+    
     <!-- Instagram -->
     <a href="https://www.instagram.com/tommilopi" 
        target="_blank"
-       class="planet planet-3" 
+       class="planet-container planet-container-3" 
        @mouseenter="showTooltip($event, 'Instagram')" 
        @mouseleave="hideTooltip">
-      <img src="/logos/instagram.svg" target="_blank" alt="Instagram" class="planet-icon">
+      <div class="planet planet-3">
+        <div class="planet-surface"></div>
+        <img src="/logos/instagram.svg" target="_blank" alt="Instagram" class="planet-icon">
+      </div>
+      <div class="ring ring-outer ring-3"></div>
+      <div class="ring ring-inner ring-3"></div>
     </a>
+    
     <!-- Contact -->
     <a href="mailto:tommaso.lopiparo@gmail.com" 
-       class="planet planet-4" 
+       class="planet-container planet-container-4" 
        @mouseenter="showTooltip($event, 'Contact Me')" 
        @mouseleave="hideTooltip">
-      <img src="/logos/email.svg" alt="Email" class="planet-icon">
+      <div class="planet planet-4">
+        <div class="planet-surface"></div>
+        <img src="/logos/email.svg" alt="Email" class="planet-icon">
+      </div>
+      <div class="ring ring-outer ring-4"></div>
+      <div class="ring ring-inner ring-4"></div>
     </a>
     
     <div class="image-container">
@@ -87,34 +110,90 @@ export default {
 <style scoped>
 .solar-system {
   position: relative;
-  width: 800px;
-  height: 800px;
+  width: 600px;
+  height: 600px;
   display: flex;
   justify-content: center;
   align-items: center;
+  perspective: 1000px;
+  transform-style: preserve-3d;
+}
+
+.planet-container {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transform-style: preserve-3d;
+  cursor: pointer;
+}
+
+.planet-container-1 {
+  width: 90px;
+  height: 90px;
+  animation: orbit1 8s linear infinite;
+  animation-delay: -3.2s;
+}
+
+.planet-container-2 {
+  width: 120px;
+  height: 120px;
+  animation: orbit2 12s linear infinite;
+  animation-delay: -7.1s;
+}
+
+.planet-container-3 {
+  width: 100px;
+  height: 100px;
+  animation: orbit3 15s linear infinite;
+  animation-delay: -2.1s;
+}
+
+.planet-container-4 {
+  width: 110px;
+  height: 110px;
+  animation: orbit4 20s linear infinite;
+  animation-delay: -5.2s;
 }
 
 .planet {
   position: absolute;
   border-radius: 50%;
   pointer-events: auto;
-  cursor: pointer;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  transform-origin: center center;
+  transform-style: preserve-3d;
+  z-index: 2;
+  overflow: hidden;
+}
+
+.planet-surface {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  animation: rotate 20s linear infinite;
+  background-image: 
+    radial-gradient(circle at 10% 40%, rgba(255, 255, 255, 0.1) 5%, transparent 8%),
+    radial-gradient(circle at 80% 30%, rgba(255, 255, 255, 0.1) 6%, transparent 9%),
+    radial-gradient(circle at 40% 70%, rgba(255, 255, 255, 0.1) 4%, transparent 7%),
+    radial-gradient(circle at 60% 20%, rgba(255, 255, 255, 0.1) 3%, transparent 6%);
+}
+
+.planet-container:hover {
+  animation-play-state: paused;
   z-index: 999;
 }
 
-.planet:hover {
-  animation-play-state: paused;
-  box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
-  z-index: 999;
+.planet-container:hover .planet {
+  transform: scale(1.15);
+  box-shadow: 0 0 25px rgba(255, 255, 255, 0.6);
 }
 
 .planet-1 {
   width: 60px;
   height: 60px;
   background: radial-gradient(circle at 30% 30%, #0077b5, #004d73); /* LinkedIn colors */
-  animation: orbit1 8s linear infinite;
   box-shadow: 0 0 15px rgba(0, 119, 181, 0.5), 0 0 30px rgba(0, 119, 181, 0.2);
 }
 
@@ -122,7 +201,6 @@ export default {
   width: 90px;
   height: 90px;
   background: radial-gradient(circle at 30% 30%, #6e5494, #4b367c); /* GitHub colors */
-  animation: orbit2 12s linear infinite;
   box-shadow: 0 0 15px rgba(110, 84, 148, 0.5), 0 0 30px rgba(110, 84, 148, 0.2);
 }
 
@@ -130,7 +208,6 @@ export default {
   width: 70px;
   height: 70px;
   background: radial-gradient(circle at 30% 30%, #E4405F, #833AB4); /* Instagram colors */
-  animation: orbit3 15s linear infinite;
   box-shadow: 0 0 15px rgba(228, 64, 95, 0.5), 0 0 30px rgba(131, 58, 180, 0.2);
 }
 
@@ -138,8 +215,86 @@ export default {
   width: 80px;
   height: 80px;
   background: radial-gradient(circle at 30% 30%, #ff4f4f, #cc0000); /* Email/Contact colors */
-  animation: orbit4 20s linear infinite;
   box-shadow: 0 0 15px rgba(255, 79, 79, 0.5), 0 0 30px rgba(204, 0, 0, 0.2);
+}
+
+/* Ring styles */
+.ring {
+  position: absolute;
+  border-radius: 50%;
+  border-style: solid;
+  border-width: 1px;
+  transform: rotateX(75deg);
+  transform-style: preserve-3d;
+  pointer-events: none;
+}
+
+.ring-outer {
+  border-width: 2px;
+}
+
+.ring-inner {
+  border-width: 1px;
+}
+
+/* LinkedIn rings */
+.ring-1.ring-outer {
+  width: 80px;
+  height: 80px;
+  border-color: rgba(0, 119, 181, 0.5);
+  animation: ring-rotate 8s linear infinite;
+}
+
+.ring-1.ring-inner {
+  width: 70px;
+  height: 70px;
+  border-color: rgba(0, 119, 181, 0.3);
+  animation: ring-rotate-reverse 6s linear infinite;
+}
+
+/* GitHub rings */
+.ring-2.ring-outer {
+  width: 110px;
+  height: 110px;
+  border-color: rgba(110, 84, 148, 0.5);
+  animation: ring-rotate 10s linear infinite;
+}
+
+.ring-2.ring-inner {
+  width: 100px;
+  height: 100px;
+  border-color: rgba(110, 84, 148, 0.3);
+  animation: ring-rotate-reverse 7s linear infinite;
+}
+
+/* Instagram rings */
+.ring-3.ring-outer {
+  width: 90px;
+  height: 90px;
+  border-color: rgba(228, 64, 95, 0.5);
+  animation: ring-rotate 9s linear infinite;
+}
+
+.ring-3.ring-inner {
+  width: 80px;
+  height: 80px;
+  border-color: rgba(131, 58, 180, 0.3);
+  animation: ring-rotate-reverse 5s linear infinite;
+}
+
+/* Contact rings */
+.ring-4.ring-outer {
+  width: 100px;
+  height: 100px;
+  border-color: rgba(255, 79, 79, 0.5);
+  animation: ring-rotate 11s linear infinite;
+}
+
+.ring-4.ring-inner {
+  width: 90px;
+  height: 90px;
+  border-color: rgba(255, 79, 79, 0.3);
+  animation: ring-rotate-reverse 8s linear infinite;
 }
 
 .image-container {
@@ -189,62 +344,33 @@ export default {
 }
 
 @keyframes orbit2 {
-  from { transform: rotate(0deg) translateX(240px) scale(1); }
-  to   { transform: rotate(360deg) translateX(240px) scale(1); }
+  from { transform: rotate(0deg) translateX(250px) scale(1); }
+  to   { transform: rotate(360deg) translateX(250px) scale(1); }
 }
 
 @keyframes orbit3 {
-  from { transform: rotate(0deg) translateX(320px) scale(1); }
-  to   { transform: rotate(360deg) translateX(320px) scale(1); }
+  from { transform: rotate(0deg) translateX(330px) scale(1); }
+  to   { transform: rotate(360deg) translateX(330px) scale(1); }
 }
 
 @keyframes orbit4 {
-  from { transform: rotate(0deg) translateX(390px) scale(1); }
-  to   { transform: rotate(360deg) translateX(390px) scale(1); }
+  from { transform: rotate(0deg) translateX(400px) scale(1); }
+  to   { transform: rotate(360deg) translateX(400px) scale(1); }
 }
 
-.solar-system {
-  position: relative;
-  width: 600px;
-  height: 600px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+@keyframes ring-rotate {
+  from { transform: rotateX(75deg) rotate(0deg); }
+  to { transform: rotateX(75deg) rotate(360deg); }
 }
 
-/* Planet styling (now applied to anchor tags) */
-.planet {
-  position: absolute;
-  border-radius: 50%;
-  pointer-events: auto;
-  cursor: pointer;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  transform-origin: center center;
-  z-index: 1;
-  /* Ensure anchor behaves as a block-level element for dimensions */
-  display: block;
+@keyframes ring-rotate-reverse {
+  from { transform: rotateX(75deg) rotate(360deg); }
+  to { transform: rotateX(75deg) rotate(0deg); }
 }
 
-/* Tooltip styling using the data-tooltip attribute */
-.planet::after {
-  content: attr(data-tooltip);
-  position: absolute;
-  top: -35px; /* Adjust as needed */
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(0, 0, 0, 0.7);
-  color: #fff;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  white-space: nowrap;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.3s ease;
-}
-
-.planet:hover::after {
-  opacity: 1;
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 .tooltip {
@@ -269,9 +395,10 @@ export default {
   filter: brightness(0) invert(1);
   opacity: 0.8;
   transition: opacity 0.3s ease;
+  z-index: 3;
 }
 
-.planet:hover .planet-icon {
+.planet-container:hover .planet-icon {
   opacity: 1;
 }
 </style>
