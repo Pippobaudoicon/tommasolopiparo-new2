@@ -109,7 +109,7 @@ const typeText = async () => {
 
                 if (isEmojiChar) {
                     // **Type full emoji instantly**
-                    await new Promise(resolve => setTimeout(resolve, typingSpeed * 2));
+                    await new Promise(resolve => setTimeout(resolve, typingSpeed));
                     renderedSegments.value[dynamicIndex].text += sentence.slice(charIndex, charIndex + emojiLength);
                     charIndex += emojiLength;
                 } else {
@@ -129,13 +129,11 @@ const typeText = async () => {
                 const lastCharPos = currentText.length - 1;
 
                 // Find full emoji length before deletion
-                //TODO: Fix issue with deleting emojis
                 const [isEmojiChar, emojiLength] = extractEmoji(currentText, lastCharPos, true);
 
                 if (isEmojiChar) {
                     // **Delete full emoji at once**
-                    await new Promise(resolve => setTimeout(resolve, deleteSpeed * 2));
-                    console.log('Deleting emoji:', currentText.slice(0,lastCharPos - emojiLength));
+                    await new Promise(resolve => setTimeout(resolve, deleteSpeed));
                     renderedSegments.value[dynamicIndex].text = currentText.slice(0,lastCharPos - emojiLength);
                 } else {
                     // **Delete single character normally**

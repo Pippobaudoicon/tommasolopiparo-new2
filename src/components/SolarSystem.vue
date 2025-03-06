@@ -6,7 +6,7 @@
        class="planet planet-1" 
        @mouseenter="showTooltip($event, 'LinkedIn')" 
        @mouseleave="hideTooltip">
-      <img src="/logos/linkedin.svg" alt="LinkedIn" class="planet-icon">
+      <img src="/logos/linkedin.svg" target="_blank" alt="LinkedIn" class="planet-icon">
     </a>
     <!-- GitHub -->
     <a href="https://github.com/pippobaudoicon" 
@@ -14,7 +14,7 @@
        class="planet planet-2" 
        @mouseenter="showTooltip($event, 'GitHub')" 
        @mouseleave="hideTooltip">
-      <img src="/logos/github.svg" alt="GitHub" class="planet-icon">
+      <img src="/logos/github.svg" target="_blank" alt="GitHub" class="planet-icon">
     </a>
     <!-- Instagram -->
     <a href="https://www.instagram.com/tommilopi" 
@@ -22,7 +22,7 @@
        class="planet planet-3" 
        @mouseenter="showTooltip($event, 'Instagram')" 
        @mouseleave="hideTooltip">
-      <img src="/logos/instagram.svg" alt="Instagram" class="planet-icon">
+      <img src="/logos/instagram.svg" target="_blank" alt="Instagram" class="planet-icon">
     </a>
     <!-- Contact -->
     <a href="mailto:tommaso.lopiparo@gmail.com" 
@@ -34,10 +34,10 @@
     
     <div class="image-container">
       <div class="backdrop"></div>
-      <a href="/public/Lo Piparo CV.pdf" 
+      <a href="/Lo Piparo CV.pdf" 
          @mouseenter="showTooltip($event, 'View Resume', 200)" 
          @mouseleave="hideTooltip">
-        <img src="/Tom.jpeg" alt="Tommaso Lo Piparo" class="face" />
+        <img src="/Tom.jpeg" target="_blank" alt="Tommaso Lo Piparo" class="face" />
       </a>
     </div>
 
