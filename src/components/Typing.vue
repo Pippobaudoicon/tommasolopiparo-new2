@@ -26,9 +26,9 @@ const permanentSegments = ref<TextSegment[]>([
 
 const changingSegments = ref<string[]>([
     " Back-end and Software Developer by day 🌞 👨‍💻, problem-solving ninja by night. 🌙 🥷",
+    " Fluent in PHP, Js/Ts, Python, various Frameworks and fixing last-minute bugs. 🐛 🔧",
     " I write code that works on the first try... that's what I like to think at least! 😅",
     " Turning swearings into APIs and database structures. 🤬 ➡️ 💻",
-    " Fluent in PHP, JavaScript/TypeScript, Python, various Frameworks and fixing last-minute bugs. 🐛 🔧",
     " I break problems, not production servers (well, almost never). 🤞 💪",
     " Git guru, networking nerd, and database whisperer. 🧙‍♂️ 🔌",
     " Team player who actually enjoys code reviews (weird, right?). 🤓 👍",
@@ -156,6 +156,7 @@ onMounted(() => {
 </script>
 
 <style scoped>
+/* TODO better text va sopra lo schermo, metterlo dinamico, controllare il mobile */
 .text-container {
   width: 75dvw;
   height: 50px;
@@ -177,6 +178,18 @@ h1 {
   transform-origin: center;
   text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
   letter-spacing: 1px;
+}
+
+@media screen and (max-width: 768px) {
+  h1 {
+    font-size: 1.75rem;
+    line-height: 1.3;
+  }
+  .text-container {
+    height: 0;
+    margin: 50px 0 0 0;
+  }
+  
 }
 
 .highlight-name {
