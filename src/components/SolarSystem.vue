@@ -354,8 +354,8 @@ export default {
 }
 
 @keyframes orbit4 {
-  from { transform: rotate(0deg) translateX(400px) scale(1); }
-  to   { transform: rotate(360deg) translateX(400px) scale(1); }
+  from { transform: rotate(0deg) translateX(420px) scale(1); }
+  to   { transform: rotate(360deg) translateX(420px) scale(1); }
 }
 
 @keyframes ring-rotate {

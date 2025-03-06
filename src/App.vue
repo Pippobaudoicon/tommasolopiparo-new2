@@ -1,7 +1,7 @@
 <template>
   <div class="portfolio">
-    <StarBackground />
-    <NavigationPlanet />
+    <StarBackground  />
+    <NavigationPlanet v-if="!isMobile" />
     <div class="content">
       <Typing />
       <SolarSystem />
@@ -16,6 +16,23 @@
   import SkillsTicker from "./components/SkillsTicker.vue";
   import Typing from "./components/Typing.vue";
   import NavigationPlanet from "./components/NavigationPlanet.vue";
+
+  import { ref, onMounted, onUnmounted } from 'vue';
+  
+  const isMobile = ref(false);
+  
+  const checkIfMobile = () => {
+    isMobile.value = window.innerWidth <= 768;
+  };
+  
+  onMounted(() => {
+    checkIfMobile();
+    window.addEventListener('resize', checkIfMobile);
+  });
+  
+  onUnmounted(() => {
+    window.removeEventListener('resize', checkIfMobile);
+  });
 </script>
 
 <style scoped>
