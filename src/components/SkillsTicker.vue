@@ -41,6 +41,7 @@
         display: flex;
         align-items: center;
         white-space: nowrap;
+        z-index: 5;
     }
 
     .ticker-content {

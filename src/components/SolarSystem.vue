@@ -117,6 +117,7 @@ export default {
   align-items: center;
   perspective: 1000px;
   transform-style: preserve-3d;
+  z-index: 10;
 }
 
 .planet-container {
@@ -126,6 +127,7 @@ export default {
   align-items: center;
   transform-style: preserve-3d;
   cursor: pointer;
+  z-index: 20;
 }
 
 .planet-container-1 {
@@ -162,7 +164,7 @@ export default {
   pointer-events: auto;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   transform-style: preserve-3d;
-  z-index: 2;
+  z-index: 30;
   overflow: hidden;
 }
 
@@ -282,7 +284,6 @@ export default {
   animation: ring-rotate-reverse 5s linear infinite;
 }
 
-/* Contact rings */
 .ring-4.ring-outer {
   width: 100px;
   height: 100px;
@@ -323,7 +324,7 @@ export default {
               0 0 45px rgba(0, 100, 255, 0.1);
   transition: all 0.3s ease;
   animation: float 4s ease-in-out infinite;
-  z-index: 10;
+  z-index: 50;
 }
 
 .face:hover {
@@ -395,7 +396,7 @@ export default {
   filter: brightness(0) invert(1);
   opacity: 0.8;
   transition: opacity 0.3s ease;
-  z-index: 3;
+  z-index: 40;
 }
 
 .planet-container:hover .planet-icon {
