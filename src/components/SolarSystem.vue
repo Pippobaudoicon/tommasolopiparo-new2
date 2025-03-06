@@ -118,6 +118,11 @@ export default {
   perspective: 1000px;
   transform-style: preserve-3d;
   z-index: 10;
+  /* Add hardware acceleration to fix iOS rendering issues */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
 }
 
 .planet-container {
@@ -135,6 +140,8 @@ export default {
   height: 90px;
   animation: orbit1 8s linear infinite;
   animation-delay: -3.2s;
+  /* Ensure planet-1 doesn't interfere with face */
+  z-index: 15;
 }
 
 .planet-container-2 {
@@ -301,6 +308,10 @@ export default {
 .image-container {
   position: relative;
   padding: 1rem;
+  /* Make sure this has higher stacking context than orbiting elements */
+  z-index: 60;
+  /* Add isolation to create a new stacking context */
+  isolation: isolate;
 }
 
 .backdrop {
@@ -311,6 +322,8 @@ export default {
   opacity: 0.7;
   border-radius: 50%;
   transform: scale(0.9);
+  /* Make backdrop below the face but above other elements */
+  z-index: 45;
 }
 
 .face {
@@ -325,12 +338,12 @@ export default {
   transition: all 0.3s ease;
   animation: float 4s ease-in-out infinite;
   z-index: 50;
-}
-
-.face:hover {
-  filter: grayscale(30%) contrast(1.1);
-  transform: scale(1.5);
-  box-shadow: 0 0 30px rgba(0, 100, 255, 0.3);
+  /* Add hardware acceleration for iOS */
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  will-change: transform;
 }
 
 @keyframes float {
@@ -401,5 +414,23 @@ export default {
 
 .planet-container:hover .planet-icon {
   opacity: 1;
+}
+
+/* Add iOS-specific fixes */
+@supports (-webkit-touch-callout: none) {
+  .solar-system {
+    /* iOS-specific adjustments */
+    perspective: 1200px;
+  }
+  
+  .planet-container-1 {
+    /* Adjust orbit path to avoid face on iOS */
+    transform-origin: center center;
+  }
+  
+  .face {
+    /* Ensure face renders correctly on iOS */
+    transform: translateZ(1px);
+  }
 }
 </style>
