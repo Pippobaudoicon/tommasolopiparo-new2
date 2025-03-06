@@ -1,7 +1,7 @@
 <template>
   <div class="solar-system" ref="solarSystem">
     <!-- LinkedIn -->
-    <a href="https://www.linkedin.com/in/your-linkedin" 
+    <a href="https://www.linkedin.com/in/tommasolopiparo" 
        target="_blank"
        class="planet planet-1" 
        @mouseenter="showTooltip($event, 'LinkedIn')" 
@@ -9,7 +9,7 @@
       <img src="/logos/linkedin.svg" alt="LinkedIn" class="planet-icon">
     </a>
     <!-- GitHub -->
-    <a href="https://github.com/your-github" 
+    <a href="https://github.com/pippobaudoicon" 
        target="_blank"
        class="planet planet-2" 
        @mouseenter="showTooltip($event, 'GitHub')" 
@@ -17,7 +17,7 @@
       <img src="/logos/github.svg" alt="GitHub" class="planet-icon">
     </a>
     <!-- Instagram -->
-    <a href="https://www.instagram.com/your-instagram" 
+    <a href="https://www.instagram.com/tommilopi" 
        target="_blank"
        class="planet planet-3" 
        @mouseenter="showTooltip($event, 'Instagram')" 
@@ -25,7 +25,7 @@
       <img src="/logos/instagram.svg" alt="Instagram" class="planet-icon">
     </a>
     <!-- Contact -->
-    <a href="mailto:your.email@example.com" 
+    <a href="mailto:tommaso.lopiparo@gmail.com" 
        class="planet planet-4" 
        @mouseenter="showTooltip($event, 'Contact Me')" 
        @mouseleave="hideTooltip">
@@ -34,7 +34,7 @@
     
     <div class="image-container">
       <div class="backdrop"></div>
-      <a href="resume" 
+      <a href="/public/Lo Piparo CV.pdf" 
          @mouseenter="showTooltip($event, 'View Resume', 200)" 
          @mouseleave="hideTooltip">
         <img src="/Tom.jpeg" alt="Tommaso Lo Piparo" class="face" />
@@ -115,6 +115,7 @@ export default {
   height: 60px;
   background: radial-gradient(circle at 30% 30%, #0077b5, #004d73); /* LinkedIn colors */
   animation: orbit1 8s linear infinite;
+  box-shadow: 0 0 15px rgba(0, 119, 181, 0.5), 0 0 30px rgba(0, 119, 181, 0.2);
 }
 
 .planet-2 {
@@ -122,6 +123,7 @@ export default {
   height: 90px;
   background: radial-gradient(circle at 30% 30%, #6e5494, #4b367c); /* GitHub colors */
   animation: orbit2 12s linear infinite;
+  box-shadow: 0 0 15px rgba(110, 84, 148, 0.5), 0 0 30px rgba(110, 84, 148, 0.2);
 }
 
 .planet-3 {
@@ -129,6 +131,7 @@ export default {
   height: 70px;
   background: radial-gradient(circle at 30% 30%, #E4405F, #833AB4); /* Instagram colors */
   animation: orbit3 15s linear infinite;
+  box-shadow: 0 0 15px rgba(228, 64, 95, 0.5), 0 0 30px rgba(131, 58, 180, 0.2);
 }
 
 .planet-4 {
@@ -136,6 +139,7 @@ export default {
   height: 80px;
   background: radial-gradient(circle at 30% 30%, #ff4f4f, #cc0000); /* Email/Contact colors */
   animation: orbit4 20s linear infinite;
+  box-shadow: 0 0 15px rgba(255, 79, 79, 0.5), 0 0 30px rgba(204, 0, 0, 0.2);
 }
 
 .image-container {
