@@ -61,6 +61,15 @@ const handleMouseMove = (event: MouseEvent) => {
   mouseY = event.clientY;
 };
 
+const handleResize = () => {
+  const canvas = canvasRef.value;
+  if (!canvas) return;
+  
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  createStars(canvas.width, canvas.height);
+};
+
 onMounted(() => {
   const canvas = canvasRef.value;
   if (!canvas) return;
@@ -70,11 +79,13 @@ onMounted(() => {
   createStars(canvas.width, canvas.height);
 
   window.addEventListener("mousemove", handleMouseMove);
+  window.addEventListener("resize", handleResize);
   animate();
 });
 
 onUnmounted(() => {
   window.removeEventListener("mousemove", handleMouseMove);
+  window.removeEventListener("resize", handleResize);
 });
 </script>
 

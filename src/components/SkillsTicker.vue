@@ -20,6 +20,7 @@
     { name: "Docker", logo: "/logos/docker.svg" },
     { name: "MongoDB", logo: "/logos/mongodb.svg" },
     { name: "MySQL", logo: "/logos/mysql.svg" },
+    { name: "PostgresSQL", logo: "/logos/postgres.svg" },
     { name: "Git", logo: "/logos/git.svg"},
     { name: "Laravel", logo: "/logos/laravel.svg"},
     { name: "Redis", logo: "/logos/redis.svg"},
