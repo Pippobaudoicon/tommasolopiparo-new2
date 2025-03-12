@@ -60,7 +60,7 @@
       <a href="/Lo Piparo CV.pdf" 
          @mouseenter="showTooltip($event, 'View Resume', 200)" 
          @mouseleave="hideTooltip">
-        <img src="/Tom.jpeg" target="_blank" alt="Tommaso Lo Piparo" class="face" />
+        <img src="/Tom.webp" target="_blank" alt="Tommaso Lo Piparo" class="face" />
       </a>
     </div>
 
