@@ -58,9 +58,14 @@
     <div class="image-container">
       <div class="backdrop"></div>
       <a href="/Lo Piparo CV.pdf" 
-         @mouseenter="showTooltip($event, 'View Resume', 200)" 
-         @mouseleave="hideTooltip">
-        <img src="/Tom.webp" target="_blank" alt="Tommaso Lo Piparo" class="face" />
+       @mouseenter="showTooltip($event, 'View Resume', 200)" 
+       @mouseleave="hideTooltip">
+      <img src="/Tom.webp" alt="Tommaso Lo Piparo" class="face" 
+         loading="eager" 
+         fetchpriority="high" 
+         width="200" 
+         height="200" 
+         decoding="async" />
       </a>
     </div>
 
