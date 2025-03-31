@@ -18,6 +18,7 @@
     { name: "PHP", logo: "/logos/php.svg" },
     { name: "Node.js", logo: "/logos/nodejs.svg" },
     { name: "Docker", logo: "/logos/docker.svg" },
+    { name: "Kubernetes", logo: "/logos/kubernetes.svg"},
     { name: "MongoDB", logo: "/logos/mongodb.svg" },
     { name: "MySQL", logo: "/logos/mysql.svg" },
     { name: "PostgresSQL", logo: "/logos/postgres.svg" },
@@ -25,6 +26,9 @@
     { name: "Laravel", logo: "/logos/laravel.svg"},
     { name: "Redis", logo: "/logos/redis.svg"},
     { name: "Elasticsearch", logo: "/logos/elasticsearch.svg"},
+    { name: "RabbitMQ", logo: "/logos/rabbitmq.svg"},
+    { name: "AWS", logo: "/logos/aws.svg"},
+    { name: "Linux", logo: "/logos/linux.svg"},
     ];
 
     // Repeat skills to ensure seamless scrolling
