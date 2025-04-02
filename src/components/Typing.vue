@@ -25,7 +25,7 @@ const permanentSegments = ref<TextSegment[]>([
 ]);
 
 const changingSegments = ref<string[]>([
-    " Back-end and Software Developer by day 🌞 👨‍💻, problem-solving ninja by night. 🌙 🥷",
+    " Back-end and DevOps by day 🌞 👨‍💻, problem-solving ninja by night. 🌙 🥷",
     " Fluent in PHP, Js/Ts, Python, various Frameworks and fixing last-minute bugs. 🐛 🔧",
     " I write code that works on the first try... that's what I like to think at least! 😅",
     " Turning swearings into APIs and database structures. 🤬 ➡️ 💻",
