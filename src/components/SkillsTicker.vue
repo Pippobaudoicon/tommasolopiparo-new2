@@ -33,7 +33,7 @@
     ];
 
     // Repeat skills to ensure seamless scrolling
-    const repeatedSkills = computed(() => [...skills, ...skills, ...skills, ...skills, ...skills]);
+    const repeatedSkills = computed(() => [...skills, ...skills]);
 </script>
 
 <style scoped>
@@ -52,7 +52,7 @@
 
     .ticker-content {
         display: inline-flex;
-        animation: scroll 20s linear infinite;
+        animation: scroll 30s linear infinite;
         will-change: transform;
     }
 
@@ -73,7 +73,7 @@
             transform: translate3d(0, 0, 0);
         }
         100% {
-            transform: translate3d(-20%, 0, 0);
+            transform: translate3d(-50%, 0, 0);
         }
     }
 </style>
