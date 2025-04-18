@@ -1,6 +1,6 @@
 <template>
   <div class="portfolio">
-    <!-- <CustomCursor /> -->
+    <CustomCursor v-if="!isMobile" />
     <StarBackground  />
     <NavigationPlanet v-if="!isMobile" />
     <div class="content">
@@ -19,7 +19,7 @@
   import SkillsTicker from "./components/SkillsTicker.vue";
   import Typing from "./components/Typing.vue";
   import NavigationPlanet from "./components/NavigationPlanet.vue";
-  // import CustomCursor from './components/CustomCursor.vue';
+  import CustomCursor from './components/CustomCursor.vue';
 </script>
 
 <style scoped>
