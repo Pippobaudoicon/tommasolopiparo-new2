@@ -25,12 +25,12 @@ const permanentSegments = ref<TextSegment[]>([
 ]);
 
 const changingSegments = ref<string[]>([
-    " Back-end and DevOps by day 🌞 👨‍💻, problem-solving ninja by night. 🌙 🥷",
-    " Fluent in PHP, Js/Ts, Python, various Frameworks and fixing last-minute bugs. 🐛 🔧",
-    " I write code that works on the first try... that's what I like to think at least! 😅",
+    " Software Engineer focussed on Back-End by day 🌞 👨‍💻, problem-solving ninja by night. 🌙 🥷",
+    " Expert with Node.Js, Laravel, Flask, with their respective languages and fixing last-minute bugs. 🐛 🔧",
     " Turning swearings into APIs and database structures. 🤬 ➡️ 💻",
-    " I break problems, not production servers (well, almost never). 🤞 💪",
     " Git guru, networking nerd, and database whisperer. 🧙‍♂️ 🔌",
+    " I write code that works on the first try... that's what I like to think at least! 😅",
+    " I break problems, not production servers (well, almost never). 🤞 💪",
     " Team player who actually enjoys code reviews (weird, right?). 🤓 👍",
     " Passionate about coding, teaching, and finding the perfect GIF for every occasion. 💻 👨‍🏫 🎭",
     " Dreaming of leading a dev team—until then, I'll settle for debugging everything. 🔍 🐞",
