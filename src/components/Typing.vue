@@ -26,7 +26,7 @@ const permanentSegments = ref<TextSegment[]>([
 
 const changingSegments = ref<string[]>([
     " Software Engineer focused on Back-End by day 🌞 👨‍💻, problem-solving ninja by night. 🌙 🥷",
-    " Expert with Node.Js, Laravel, Flask, with their respective languages and fixing last-minute bugs. 🐛 🔧",
+    " Expert in Node.js, Laravel, and Flask, with strong proficiency in their respective languages, and fixing last-minute bugs. 🐛🔧",
     " Turning swearings into APIs and database structures. 🤬 ➡️ 💻",
     " Git guru, networking nerd, and database whisperer. 🧙‍♂️ 🔌",
     " I write code that works on the first try... that's what I like to think at least! 😅",
