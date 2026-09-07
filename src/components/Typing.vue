@@ -3,15 +3,19 @@
 import { onMounted, onUnmounted, ref } from "vue";
 
 const sentences = [
-    " Software Engineer focused on Back-End by day 🌞 👨‍💻, problem-solving ninja by night. 🌙 🥷",
+    " Software Engineer focused on Back-End and AI by day 🌞 👨‍💻, problem-solving ninja by night. 🌙 🥷",
     " Expert in Node.js, Laravel, and Flask, with strong proficiency in their respective languages, and fixing last-minute bugs. 🐛🔧",
     " Turning swearings into APIs and database structures. 🤬 ➡️ 💻",
+    " Now also turning prompts into products, with the occasional argument with the model. 🤖 🗣️",
+    " AI engineering: half the magic is the model, the other half is good old data plumbing. 🧠 🔌",
+    " Teaching language models to behave, one eval at a time. 📊 🤖",
     " Git guru, networking nerd, and database whisperer. 🧙‍♂️ 🔌",
     " I write code that works on the first try... that's what I like to think at least! 😅",
     " I break problems, not production servers (well, almost never). 🤞 💪",
+    " Docker, CI/CD, and monitoring, so “it works on my machine” never has to be part of the conversation. 🐳",
     " Team player who actually enjoys code reviews (weird, right?). 🤓 👍",
     " Passionate about coding, teaching, and finding the perfect GIF for every occasion. 💻 👨‍🏫 🎭",
-    " Dreaming of leading a dev team—until then, I'll settle for debugging everything. 🔍 🐞",
+    " Dreaming of leading a dev team. Until then, I'll settle for debugging everything. 🔍 🐞",
     " Tech enthusiast, stock market watcher, and part-time movie critic. 🎬 💻 📈",
     " I'm always up for a challenge, so let's build something awesome together! 🛠️ 🚀",
     " I'm currently looking for new opportunities, so feel free to reach out! 📧 🤝",
@@ -33,6 +37,10 @@ onMounted(() => {
     ? Array.from(segmenter.segment(value), part => part.segment)
     : Array.from(value);
 
+  // Hold a finished sentence long enough to finish reading it: the text is already
+  // on screen while it types, so the pause only has to cover the tail end.
+  const holdFor = (length: number) => Math.min(3600, 1200 + length * 20);
+
   function tick() {
     const target = characters(sentences[sentenceIndex]);
     const current = characters(text.value);
@@ -42,11 +50,11 @@ onMounted(() => {
         deleting = false;
         sentenceIndex = (sentenceIndex + 1) % sentences.length;
       }
-      timeout = setTimeout(tick, text.value ? 24 : 400);
+      timeout = setTimeout(tick, text.value ? 10 : 240);
     } else {
       text.value = target.slice(0, current.length + 1).join("");
       deleting = text.value === sentences[sentenceIndex];
-      timeout = setTimeout(tick, deleting ? 4500 : 38);
+      timeout = setTimeout(tick, deleting ? holdFor(target.length) : 20);
     }
   }
 
@@ -55,7 +63,7 @@ onMounted(() => {
     text.value = sentences[0];
     sentenceIndex = 0;
     deleting = true;
-    if (!motion.matches && !document.hidden) timeout = setTimeout(tick, 4500);
+    if (!motion.matches && !document.hidden) timeout = setTimeout(tick, holdFor(sentences[0].length));
   }
 
   motion.addEventListener("change", syncTyping);
@@ -75,14 +83,14 @@ onUnmounted(() => cleanup());
   <header class="text-container">
     <h1><span class="greeting">Hi, I’m</span> <span class="highlight-name">Tommaso Lo Piparo.</span></h1>
     <p class="description" aria-hidden="true">{{ text }}<span class="cursor">|</span></p>
-    <p class="sr-only">Software engineer focused on backend development, APIs, and databases.</p>
+    <p class="sr-only">Software engineer focused on backend development, APIs, databases, and AI engineering.</p>
   </header>
 </template>
 
 <style scoped>
 .text-container {
   position: relative;
-  width: min(720px, 86vw);
+  width: min(980px, 92vw);
   text-align: center;
   z-index: 40;
 }
@@ -101,12 +109,12 @@ h1 {
 .description {
   height: 3.4em;
   margin: 0 auto;
-  max-width: 660px;
+  max-width: 100%;
   font-size: 13px;
   line-height: 1.7;
   font-weight: 400;
   color: #a1aabd;
-  text-wrap: balance;
+  text-wrap: pretty;
 }
 
 .cursor {
