@@ -50,8 +50,8 @@ const { isMobile } = useMobile();
 
 @media (max-width: 600px) {
   .content {
-    padding: 44px 0 28px;
-    gap: 24px;
+    padding: 32px 0 18px;
+    gap: 12px;
   }
 }
 

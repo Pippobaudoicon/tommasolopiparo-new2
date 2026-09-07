@@ -312,15 +312,18 @@ onUnmounted(() => cleanup());
 
 @media (max-width: 600px) {
   .solar-system {
-    width: 92vw;
-    height: auto;
-    aspect-ratio: 1;
+    width: 112vw;
+    height: min(140vw, calc(100svh - 284px));
   }
 
-  .image-container { width: 20%; }
+  .image-container {
+    display: grid;
+    width: clamp(88px, 26vw, 120px);
+    height: clamp(88px, 26vw, 120px);
+  }
 
   .planet-container {
-    --mobile-size: calc(var(--size) * 0.62);
+    --mobile-size: calc(var(--size) * 0.82);
     width: max(44px, var(--mobile-size));
     height: max(44px, var(--mobile-size));
   }
@@ -332,8 +335,8 @@ onUnmounted(() => cleanup());
     height: calc(var(--mobile-size) * 0.4);
   }
 
-  .planet-label { font-size: 9px; top: calc(100% + 5px); }
-  .resume-label { font-size: 9px; }
+  .planet-label { font-size: 10px; top: calc(100% + 5px); }
+  .resume-label { font-size: 10px; }
 }
 
 @media (hover: none) {
@@ -341,7 +344,12 @@ onUnmounted(() => cleanup());
 }
 
 @media (max-width: 600px) and (max-height: 650px) {
-  .solar-system { width: min(92vw, calc(100svh - 260px)); }
+  .solar-system { height: calc(100svh - 260px); }
+}
+
+@media (max-width: 600px) and (prefers-reduced-motion: reduce) {
+  /* Stationary planets should stay reachable without waiting for an orbit. */
+  .solar-system { width: 92vw; }
 }
 
 @media (max-height: 550px) and (min-width: 601px) {
