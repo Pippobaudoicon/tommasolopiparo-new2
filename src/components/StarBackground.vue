@@ -2,101 +2,114 @@
 import { onMounted, onUnmounted, ref } from "vue";
 
 const canvasRef = ref<HTMLCanvasElement | null>(null);
-let stars: { x: number; y: number; size: number; speed: number; driftX: number; driftY: number }[] = [];
-const numStars = 100;
-let mouseX = 0, mouseY = 0;
-
-const createStars = (width: number, height: number) => {
-  stars = Array.from({ length: numStars }, () => ({
-    x: Math.random() * width,
-    y: Math.random() * height,
-    size: Math.random() * 2,
-    speed: Math.random() * 0.3 + 0.1,
-    driftX: (Math.random() - 1) * 0.3, // Slow horizontal drift
-    driftY: (Math.random() - 1) * 0.3  // Slow vertical drift
-  }));
-};
-
-const drawStars = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
-  ctx.clearRect(0, 0, width, height);
-  ctx.fillStyle = "white";
-
-  for (const star of stars) {
-    // Move stars slightly in random directions (self-drift effect)
-    star.x += star.driftX;
-    star.y += star.driftY;
-
-    // Keep stars within bounds
-    if (star.x < 0) star.x = width;
-    if (star.x > width) star.x = 0;
-    if (star.y < 0) star.y = height;
-    if (star.y > height) star.y = 0;
-
-    // Apply slight movement based on mouse position
-    const dx = (mouseX - width / 2) * star.speed * 0.05;
-    const dy = (mouseY - height / 2) * star.speed * 0.05;
-
-    ctx.beginPath();
-    ctx.arc(star.x + dx, star.y + dy, star.size, 0, Math.PI * 2);
-    ctx.fill();
-  }
-};
-
-const animate = () => {
-  const canvas = canvasRef.value;
-  if (!canvas) return;
-
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return;
-
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-  
-  drawStars(ctx, canvas.width, canvas.height);
-  requestAnimationFrame(animate);
-};
-
-const handleMouseMove = (event: MouseEvent) => {
-  mouseX = event.clientX;
-  mouseY = event.clientY;
-};
-
-const handleResize = () => {
-  const canvas = canvasRef.value;
-  if (!canvas) return;
-  
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-  createStars(canvas.width, canvas.height);
-};
+let cleanup = () => {};
 
 onMounted(() => {
   const canvas = canvasRef.value;
-  if (!canvas) return;
+  const ctx = canvas?.getContext("2d");
+  if (!canvas || !ctx) return;
 
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-  createStars(canvas.width, canvas.height);
+  const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const stars = Array.from({ length: 130 }, () => ({
+    x: Math.random(), y: Math.random(),
+    radius: Math.random() * 0.9 + 0.25,
+    opacity: Math.random() * 0.5 + 0.12,
+    depth: Math.random() * 0.7 + 0.3,
+    phase: Math.random() * Math.PI * 2,
+  }));
 
-  window.addEventListener("mousemove", handleMouseMove);
-  window.addEventListener("resize", handleResize);
-  animate();
+  let width = window.innerWidth;
+  let height = window.innerHeight;
+  let pointerX = 0;
+  let pointerY = 0;
+  let offsetX = 0;
+  let offsetY = 0;
+  let elapsed = 0;
+  let previousTime = 0;
+  let frame = 0;
+
+  function draw(delta = 0) {
+    if (!canvas || !ctx) return;
+    elapsed += delta;
+    const follow = 1 - Math.exp(-delta * 2);
+    offsetX += (pointerX - offsetX) * follow;
+    offsetY += (pointerY - offsetY) * follow;
+    ctx.clearRect(0, 0, width, height);
+
+    for (const star of stars) {
+      const x = ((star.x * width + elapsed * star.depth * 1.1 + offsetX * star.depth) % width + width) % width;
+      const y = ((star.y * height + elapsed * star.depth * 0.45 + offsetY * star.depth) % height + height) % height;
+      const twinkle = motion.matches ? 1 : 0.8 + Math.sin(elapsed * 0.45 + star.phase) * 0.2;
+      ctx.fillStyle = `rgba(200, 216, 244, ${star.opacity * twinkle})`;
+      ctx.beginPath();
+      ctx.arc(x, y, star.radius, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  function resize() {
+    if (!canvas || !ctx) return;
+    width = window.innerWidth;
+    height = window.innerHeight;
+    const ratio = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.round(width * ratio);
+    canvas.height = Math.round(height * ratio);
+    ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+    draw();
+  }
+
+  function animate(time: number) {
+    const delta = previousTime ? Math.min((time - previousTime) / 1000, 0.05) : 0;
+    previousTime = time;
+    draw(delta);
+    frame = requestAnimationFrame(animate);
+  }
+
+  function syncAnimation() {
+    cancelAnimationFrame(frame);
+    previousTime = 0;
+    if (motion.matches) {
+      pointerX = pointerY = offsetX = offsetY = 0;
+    }
+    draw();
+    if (!motion.matches && !document.hidden) frame = requestAnimationFrame(animate);
+  }
+
+  function move(event: PointerEvent) {
+    if (motion.matches || event.pointerType !== "mouse") return;
+    pointerX = (event.clientX / width - 0.5) * 18;
+    pointerY = (event.clientY / height - 0.5) * 18;
+  }
+
+  resize();
+  syncAnimation();
+  window.addEventListener("resize", resize);
+  window.addEventListener("pointermove", move, { passive: true });
+  motion.addEventListener("change", syncAnimation);
+  document.addEventListener("visibilitychange", syncAnimation);
+
+  cleanup = () => {
+    cancelAnimationFrame(frame);
+    window.removeEventListener("resize", resize);
+    window.removeEventListener("pointermove", move);
+    motion.removeEventListener("change", syncAnimation);
+    document.removeEventListener("visibilitychange", syncAnimation);
+  };
 });
 
-onUnmounted(() => {
-  window.removeEventListener("mousemove", handleMouseMove);
-  window.removeEventListener("resize", handleResize);
-});
+onUnmounted(() => cleanup());
 </script>
 
 <template>
-  <canvas ref="canvasRef" class="star-canvas"></canvas>
+  <canvas ref="canvasRef" class="star-canvas" aria-hidden="true" />
 </template>
 
 <style scoped>
 .star-canvas {
   position: fixed;
-  top: 0;
-  left: 0;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
 }
 </style>

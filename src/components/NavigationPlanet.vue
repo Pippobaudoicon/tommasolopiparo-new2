@@ -1,6 +1,6 @@
 <template>
   <div class="planet-container">
-    <a :href="href" class="planet-link" target="_blank" rel="noopener noreferrer">
+    <a :href="href" :aria-label="orbitText" class="planet-link" target="_blank" rel="noopener noreferrer">
       <div class="planet-orbit">
         <div class="planet">
           <div class="planet-surface"></div>
@@ -25,7 +25,7 @@ export default {
     },
     orbitText: {
       type: String,
-      default: 'Old Website'
+      default: 'OG Website'
     }
   }
 }
@@ -34,10 +34,10 @@ export default {
 <style scoped>
 .planet-container {
   position: absolute;
-  width: 120px;
-  height: 120px;
-  top: 20px;
-  right: 20px;
+  width: 70px;
+  height: 70px;
+  top: 24px;
+  right: 28px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -54,8 +54,8 @@ export default {
 
 .planet-orbit {
   position: relative;
-  width: 100px;
-  height: 100px;
+  width: 70px;
+  height: 70px;
   border-radius: 50%;
   display: flex;
   justify-content: center;
@@ -67,13 +67,13 @@ export default {
 
 .planet {
   position: absolute;
-  width: 60px;
-  height: 60px;
-  background: radial-gradient(circle at 30% 30%, #51bafd, #3fa9fc 30%, #2186eb 60%, #1967d2);
+  width: 35px;
+  height: 35px;
+  background: radial-gradient(circle at 28% 23%, #a6c8d8, #49798e 37%, #101f32 78%);
   border-radius: 50%;
   box-shadow: 
     inset 0 0 20px rgba(0, 0, 0, 0.5),
-    0 0 20px rgba(81, 186, 253, 0.4);
+    0 0 20px rgba(81, 186, 253, 0.12);
   overflow: hidden;
   z-index: 2;
 }
@@ -94,45 +94,44 @@ export default {
   position: absolute;
   border-radius: 50%;
   border-style: solid;
-  border-width: 2px;
+  border-width: 1px;
   transform: rotateX(75deg);
   transform-style: preserve-3d;
 }
 
 .ring-1 {
-  width: 90px;
-  height: 90px;
-  border-color: rgba(160, 234, 255, 0.5);
+  width: 62px;
+  height: 62px;
+  border-color: rgba(160, 212, 235, 0.35);
   animation: ring-rotate 10s linear infinite;
 }
 
 .ring-2 {
-  width: 80px;
-  height: 80px;
-  border-color: rgba(60, 164, 255, 0.5);
+  width: 54px;
+  height: 54px;
+  border-color: rgba(116, 164, 185, 0.2);
   animation: ring-rotate-reverse 8s linear infinite;
 }
 
 .text-container {
   position: absolute;
-  bottom: -25px;
+  bottom: -12px;
   transform: translateY(0);
   transition: transform 0.3s ease;
   z-index: 3;
 }
 
 .planet-text {
-  color: white;
-  font-size: 0.9rem;
-  font-weight: bold;
-  text-shadow: 0 0 8px rgba(81, 186, 253, 0.6);
+  color: #a1aabd;
+  font-size: 10px;
+  font-weight: 400;
   opacity: 0;
   transition: opacity 0.3s ease;
   white-space: nowrap;
 }
 
-.planet-link:hover .planet-orbit {
-  transform: translateY(-10px);
+.planet-link:is(:hover, :focus-visible) .planet-orbit {
+  transform: translateY(-3px);
 }
 
 .planet-link:hover .planet {
@@ -141,7 +140,7 @@ export default {
     0 0 30px rgba(81, 186, 253, 0.7);
 }
 
-.planet-link:hover .planet-text {
+.planet-link:is(:hover, :focus-visible) .planet-text {
   opacity: 1;
 }
 

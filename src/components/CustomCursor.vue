@@ -1,73 +1,80 @@
-<template>
-  <div
-    class="custom-cursor"
-    :style="{
-      left: `${cursor.x}px`,
-      top: `${cursor.y}px`
-    }"
-  ></div>
-</template>
-
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from "vue";
+import { onMounted, onUnmounted, ref } from "vue";
 
-const cursor = ref({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
-const target = ref({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
-const center = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
-let lastMove = Date.now();
-let drifting = false;
-let animationFrame: number | null = null;
-
-// Set your desired speeds here
-const FOLLOW_SPEED = 0.15; // speed when following mouse
-const DRIFT_SPEED = 0.013;  // speed when drifting to center
-
-function onMouseMove(e: MouseEvent) {
-  target.value.x = e.clientX;
-  target.value.y = e.clientY;
-  lastMove = Date.now();
-  drifting = false;
-}
-
-function animateCursor() {
-  const dest = drifting ? center : target.value;
-  const speed = drifting ? DRIFT_SPEED : FOLLOW_SPEED;
-  cursor.value.x += (dest.x - cursor.value.x) * speed;
-  cursor.value.y += (dest.y - cursor.value.y) * speed;
-  animationFrame = requestAnimationFrame(animateCursor);
-}
-
-function checkIdle() {
-  if (Date.now() - lastMove > 800 && !drifting) {
-    drifting = true;
-  } else if (drifting && Date.now() - lastMove <= 800) {
-    drifting = false;
-  }
-  requestAnimationFrame(checkIdle);
-}
+const cursor = ref<HTMLDivElement | null>(null);
+let cleanup = () => {};
 
 onMounted(() => {
-  window.addEventListener("mousemove", onMouseMove);
-  animationFrame = requestAnimationFrame(animateCursor);
-  requestAnimationFrame(checkIdle);
+  const element = cursor.value;
+  if (!element) return;
+
+  let x = 0;
+  let y = 0;
+  let targetX = 0;
+  let targetY = 0;
+  let frame = 0;
+  let initialized = false;
+
+  function animate() {
+    x += (targetX - x) * 0.2;
+    y += (targetY - y) * 0.2;
+    element!.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`;
+    if (Math.abs(targetX - x) + Math.abs(targetY - y) > 0.1) {
+      frame = requestAnimationFrame(animate);
+    } else {
+      frame = 0;
+    }
+  }
+
+  function move(event: PointerEvent) {
+    if (event.pointerType !== "mouse") return;
+    targetX = event.clientX;
+    targetY = event.clientY;
+    if (!initialized) {
+      x = targetX;
+      y = targetY;
+      initialized = true;
+    }
+    element!.style.opacity = "1";
+    if (!frame) frame = requestAnimationFrame(animate);
+  }
+
+  function hide() { element!.style.opacity = "0"; }
+
+  window.addEventListener("pointermove", move, { passive: true });
+  document.documentElement.addEventListener("pointerleave", hide);
+  window.addEventListener("blur", hide);
+  cleanup = () => {
+    cancelAnimationFrame(frame);
+    window.removeEventListener("pointermove", move);
+    document.documentElement.removeEventListener("pointerleave", hide);
+    window.removeEventListener("blur", hide);
+  };
 });
 
-onUnmounted(() => {
-  window.removeEventListener("mousemove", onMouseMove);
-  if (animationFrame) cancelAnimationFrame(animationFrame);
-});
+onUnmounted(() => cleanup());
 </script>
+
+<template>
+  <div ref="cursor" class="custom-cursor" aria-hidden="true" />
+</template>
 
 <style scoped>
 .custom-cursor {
   position: fixed;
-  width: 32px;
-  height: 32px;
+  top: 0;
+  left: 0;
+  width: 22px;
+  height: 22px;
+  border: 1px solid #b1c2df35;
   border-radius: 50%;
-  background: rgba(255,255,255,0.4);
   pointer-events: none;
-  transform: translate(-50%, -50%);
-  z-index: 10000;
-  transition: background 0.2s;
+  opacity: 0;
+  z-index: 100;
+  transition: opacity 200ms;
+}
+
+@media (prefers-reduced-motion: reduce), (pointer: coarse) {
+  .custom-cursor { display: none; }
 }
 </style>

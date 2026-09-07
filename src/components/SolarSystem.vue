@@ -1,441 +1,354 @@
-<template>
-  <div class="solar-system" ref="solarSystem">
-    <!-- LinkedIn -->
-    <a href="https://www.linkedin.com/in/tommasolopiparo" 
-       target="_blank"
-       class="planet-container planet-container-1" 
-       @mouseenter="showTooltip($event, 'LinkedIn')" 
-       @mouseleave="hideTooltip">
-      <div class="planet planet-1">
-        <div class="planet-surface"></div>
-        <img src="/logos/linkedin.svg" target="_blank" alt="LinkedIn" class="planet-icon">
-      </div>
-      <div class="ring ring-outer ring-1"></div>
-      <div class="ring ring-inner ring-1"></div>
-    </a>
-    
-    <!-- GitHub -->
-    <a href="https://github.com/pippobaudoicon" 
-       target="_blank"
-       class="planet-container planet-container-2" 
-       @mouseenter="showTooltip($event, 'GitHub')" 
-       @mouseleave="hideTooltip">
-      <div class="planet planet-2">
-        <div class="planet-surface"></div>
-        <img src="/logos/github.svg" target="_blank" alt="GitHub" class="planet-icon">
-      </div>
-      <div class="ring ring-outer ring-2"></div>
-      <div class="ring ring-inner ring-2"></div>
-    </a>
-    
-    <!-- Instagram -->
-    <a href="https://www.instagram.com/tommilopi" 
-       target="_blank"
-       class="planet-container planet-container-3" 
-       @mouseenter="showTooltip($event, 'Instagram')" 
-       @mouseleave="hideTooltip">
-      <div class="planet planet-3">
-        <div class="planet-surface"></div>
-        <img src="/logos/instagram.svg" target="_blank" alt="Instagram" class="planet-icon">
-      </div>
-      <div class="ring ring-outer ring-3"></div>
-      <div class="ring ring-inner ring-3"></div>
-    </a>
-    
-    <!-- Contact -->
-    <a href="mailto:tommaso.lopiparo@gmail.com" 
-       class="planet-container planet-container-4" 
-       @mouseenter="showTooltip($event, 'Contact Me')" 
-       @mouseleave="hideTooltip">
-      <div class="planet planet-4">
-        <div class="planet-surface"></div>
-        <img src="/logos/email.svg" alt="Email" class="planet-icon">
-      </div>
-      <div class="ring ring-outer ring-4"></div>
-      <div class="ring ring-inner ring-4"></div>
-    </a>
-    
-    <div class="image-container">
-      <div class="backdrop"></div>
-      <a href="/Lo Piparo CV.pdf" 
-       @mouseenter="showTooltip($event, 'View Resume', 200)" 
-       @mouseleave="hideTooltip">
-      <img src="/Tom.webp" alt="Tommaso Lo Piparo" class="face" 
-         loading="eager" 
-         fetchpriority="high" 
-         width="200" 
-         height="200" 
-         decoding="async" />
-      </a>
-    </div>
+<script setup lang="ts">
+import { onMounted, onUnmounted, ref } from "vue";
 
-    <!-- Tooltip element, positioned absolutely within the solar system container -->
-    <div v-if="tooltip.visible" 
-         class="tooltip" 
-         :style="{ top: tooltip.top + 'px', left: tooltip.left + 'px' }">
-      {{ tooltip.text }}
-    </div>
-  </div>
-</template>
+const solarSystem = ref<HTMLElement | null>(null);
+const hoveredPlanet = ref<string | null>(null);
+const focusedPlanet = ref<string | null>(null);
 
-<script>
-export default {
-  data() {
-    return {
-      tooltip: {
-        visible: false,
-        text: '',
-        top: 0,
-        left: 0,
-      },
-    }
-  },
-  methods: {
-    showTooltip(event, text, offset = 0) {
-      // Get the planet's position relative to the viewport
-      const planetRect = event.currentTarget.getBoundingClientRect();
-      // Get the solar system container's position relative to the viewport
-      const containerRect = this.$refs.solarSystem.getBoundingClientRect();
-      
-      // Calculate the tooltip's position relative to the container:
-      this.tooltip.top = planetRect.top - containerRect.top - 5 - offset;
-      this.tooltip.left = planetRect.left - containerRect.left + planetRect.width / 2;
-      
-      this.tooltip.text = text;
-      this.tooltip.visible = true;
-    },
-    hideTooltip() {
-      this.tooltip.visible = false;
-    },
-  },
-};
+const planets = [
+  { name: "LinkedIn", href: "https://www.linkedin.com/in/tommasolopiparo", logo: "linkedin.svg", radius: 0.205, period: 24, angle: 3.9, size: 56, light: "#8ac4e6", color: "#236996", shadow: "#091829" },
+  { name: "GitHub", href: "https://github.com/pippobaudoicon", logo: "github.svg", radius: 0.285, period: 34, angle: 0.7, size: 74, light: "#c4b3ed", color: "#69568d", shadow: "#1b142c" },
+  { name: "Instagram", href: "https://www.instagram.com/tommilopi", logo: "instagram.svg", radius: 0.365, period: 46, angle: 2.8, size: 61, light: "#e6a7ba", color: "#974864", shadow: "#2a111f" },
+  { name: "Contact me", href: "mailto:tommaso.lopiparo@gmail.com", logo: "email.svg", radius: 0.445, period: 60, angle: 5.6, size: 67, light: "#edb99c", color: "#ac6550", shadow: "#301a17" },
+];
+
+let cleanup = () => {};
+
+onMounted(() => {
+  const root = solarSystem.value;
+  if (!root) return;
+
+  const links = Array.from(root.querySelectorAll<HTMLAnchorElement>(".planet-container"));
+  const angles = planets.map(planet => planet.angle);
+  const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  let width = root.clientWidth;
+  let height = root.clientHeight;
+  let frame = 0;
+  let previousTime = 0;
+  let bodyRadii: number[] = [];
+  let portraitRadius = 0;
+
+  function measureBodies() {
+    // Reserve room for the 10% hover highlight as well as the planet itself.
+    bodyRadii = links.map(link => link.querySelector<HTMLElement>(".planet")!.offsetWidth * 0.55);
+    portraitRadius = root!.querySelector<HTMLElement>(".image-container")!.offsetWidth / 2;
+  }
+
+  measureBodies();
+
+  function positionPlanets(delta = 0) {
+    const positions = planets.map((planet, index) => {
+      const paused = hoveredPlanet.value === planet.name || focusedPlanet.value === planet.name;
+      if (!paused && !motion.matches) angles[index] += delta * Math.PI * 2 / planet.period;
+      const angle = angles[index];
+      const x = Math.cos(angle) * width * planet.radius;
+      const y = Math.sin(angle) * height * planet.radius;
+      const depth = Math.sin(angle);
+      return { x, y, depth, paused, scale: 1 + depth * 0.08 };
+    });
+
+    // Let planets recede slightly during close passes instead of covering one
+    // another. Their orbital paths and individual speeds remain unchanged.
+    positions.forEach((position, index) => {
+      const clearance = Math.hypot(position.x, position.y) - portraitRadius - 8;
+      position.scale = Math.min(position.scale, Math.max(0, clearance) / bodyRadii[index]);
+
+      for (let otherIndex = 0; otherIndex < index; otherIndex++) {
+        const other = positions[otherIndex];
+        const distance = Math.hypot(position.x - other.x, position.y - other.y);
+        const occupied = bodyRadii[index] * position.scale + bodyRadii[otherIndex] * other.scale;
+        const separation = Math.min(1, Math.max(0, distance - 8) / occupied);
+        position.scale *= separation;
+        other.scale *= separation;
+      }
+    });
+
+    positions.forEach(({ x, y, depth, paused, scale }, index) => {
+      const link = links[index];
+      link.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%) scale(${scale})`;
+      link.style.zIndex = paused ? "30" : depth > 0 ? "20" : "5";
+    });
+  }
+
+  function animate(time: number) {
+    const delta = previousTime ? Math.min((time - previousTime) / 1000, 0.05) : 0;
+    previousTime = time;
+    positionPlanets(delta);
+    frame = requestAnimationFrame(animate);
+  }
+
+  function syncAnimation() {
+    cancelAnimationFrame(frame);
+    previousTime = 0;
+    positionPlanets();
+    if (!document.hidden && !motion.matches) frame = requestAnimationFrame(animate);
+  }
+
+  const observer = new ResizeObserver(() => {
+    width = root.clientWidth;
+    height = root.clientHeight;
+    measureBodies();
+    positionPlanets();
+  });
+  observer.observe(root);
+  motion.addEventListener("change", syncAnimation);
+  document.addEventListener("visibilitychange", syncAnimation);
+  syncAnimation();
+
+  cleanup = () => {
+    cancelAnimationFrame(frame);
+    observer.disconnect();
+    motion.removeEventListener("change", syncAnimation);
+    document.removeEventListener("visibilitychange", syncAnimation);
+  };
+});
+
+onUnmounted(() => cleanup());
 </script>
 
+<template>
+  <nav ref="solarSystem" class="solar-system" aria-label="Explore my solar system">
+    <svg class="orbit-paths" viewBox="0 0 1000 1000" preserveAspectRatio="none" fill="none" aria-hidden="true">
+      <circle v-for="planet in planets" :key="planet.name" cx="500" cy="500" :r="planet.radius * 1000" />
+    </svg>
+
+    <a
+      v-for="planet in planets"
+      :key="planet.name"
+      :href="planet.href"
+      :target="planet.href.startsWith('https:') ? '_blank' : undefined"
+      :rel="planet.href.startsWith('https:') ? 'noopener noreferrer' : undefined"
+      :aria-label="planet.name"
+      class="planet-container"
+      :class="{ 'is-active': hoveredPlanet === planet.name || focusedPlanet === planet.name }"
+      :style="{
+        '--size': planet.size + 'px',
+        '--light': planet.light,
+        '--color': planet.color,
+        '--shadow': planet.shadow,
+        transform: `translate(${Math.cos(planet.angle) * 100 * planet.radius}%, ${Math.sin(planet.angle) * 100 * planet.radius}%)`,
+      }"
+      @pointerenter="hoveredPlanet = $event.pointerType === 'mouse' ? planet.name : null"
+      @pointerleave="hoveredPlanet = null"
+      @focus="focusedPlanet = planet.name"
+      @blur="focusedPlanet = null"
+    >
+      <span class="planet-ring" aria-hidden="true" />
+      <span class="planet">
+        <span class="planet-surface" aria-hidden="true" />
+        <img :src="'/logos/' + planet.logo" alt="" class="planet-icon" width="28" height="28" />
+      </span>
+      <span class="planet-label" aria-hidden="true">{{ planet.name }} <span>↗</span></span>
+    </a>
+
+    <a class="image-container" href="/Lo%20Piparo%20CV.pdf" target="_blank" rel="noopener noreferrer" aria-label="View Tommaso Lo Piparo's résumé">
+      <span class="solar-corona" aria-hidden="true" />
+      <img src="/Tom.webp" alt="Tommaso Lo Piparo" class="face" fetchpriority="high" width="200" height="200" decoding="async" />
+      <span class="resume-label" aria-hidden="true">View résumé ↗</span>
+    </a>
+  </nav>
+</template>
 
 <style scoped>
 .solar-system {
   position: relative;
-  width: 600px;
-  height: 600px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  perspective: 1000px;
-  transform-style: preserve-3d;
-  z-index: 10;
-  /* Add hardware acceleration to fix iOS rendering issues */
-  -webkit-transform: translateZ(0);
-  transform: translateZ(0);
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
+  width: min(1600px, 92vw);
+  height: min(720px, calc(100svh - 228px), calc(92vw / 1.55));
+  flex-shrink: 0;
+  isolation: isolate;
+}
+
+.orbit-paths {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.orbit-paths circle {
+  stroke: #8299bd;
+  stroke-opacity: 0.13;
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.orbit-paths circle:nth-child(even) {
+  stroke-opacity: 0.085;
 }
 
 .planet-container {
   position: absolute;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  transform-style: preserve-3d;
-  cursor: pointer;
-  z-index: 20;
-}
-
-.planet-container-1 {
-  width: 90px;
-  height: 90px;
-  animation: orbit1 8s linear infinite;
-  animation-delay: -3.2s;
-  /* Ensure planet-1 doesn't interfere with face */
-  z-index: 15;
-}
-
-.planet-container-2 {
-  width: 120px;
-  height: 120px;
-  animation: orbit2 12s linear infinite;
-  animation-delay: -7.1s;
-}
-
-.planet-container-3 {
-  width: 100px;
-  height: 100px;
-  animation: orbit3 15s linear infinite;
-  animation-delay: -2.1s;
-}
-
-.planet-container-4 {
-  width: 110px;
-  height: 110px;
-  animation: orbit4 20s linear infinite;
-  animation-delay: -5.2s;
+  top: 50%;
+  left: 50%;
+  width: max(44px, var(--size));
+  height: max(44px, var(--size));
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  will-change: transform;
 }
 
 .planet {
-  position: absolute;
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: var(--size);
+  height: var(--size);
   border-radius: 50%;
-  pointer-events: auto;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  transform-style: preserve-3d;
-  z-index: 30;
   overflow: hidden;
+  background: radial-gradient(circle at 28% 23%, var(--light), var(--color) 37%, var(--shadow) 78%);
+  box-shadow: inset -6px -7px 12px #0008, inset 1px 1px 2px #ffffff40, 0 0 24px color-mix(in srgb, var(--color) 18%, transparent);
+  transition: scale 250ms, box-shadow 250ms;
+  z-index: 1;
 }
 
 .planet-surface {
   position: absolute;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-  animation: rotate 20s linear infinite;
-  background-image: 
-    radial-gradient(circle at 10% 40%, rgba(255, 255, 255, 0.1) 5%, transparent 8%),
-    radial-gradient(circle at 80% 30%, rgba(255, 255, 255, 0.1) 6%, transparent 9%),
-    radial-gradient(circle at 40% 70%, rgba(255, 255, 255, 0.1) 4%, transparent 7%),
-    radial-gradient(circle at 60% 20%, rgba(255, 255, 255, 0.1) 3%, transparent 6%);
+  inset: -30%;
+  opacity: 0.15;
+  background: repeating-linear-gradient(168deg, transparent 0 8px, #ffffff38 10px 11px, transparent 14px 21px);
+  animation: surface-drift 35s linear infinite;
 }
 
-.planet-container:hover {
-  animation-play-state: paused;
-  z-index: 999;
+.planet-icon {
+  width: 42%;
+  height: 42%;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+  opacity: 0.82;
+  z-index: 2;
+  transition: opacity 250ms;
 }
 
-.planet-container:hover .planet {
-  transform: scale(1.15);
-  box-shadow: 0 0 25px rgba(255, 255, 255, 0.6);
-}
-
-.planet-1 {
-  width: 60px;
-  height: 60px;
-  background: radial-gradient(circle at 30% 30%, #0077b5, #004d73); /* LinkedIn colors */
-  box-shadow: 0 0 15px rgba(0, 119, 181, 0.5), 0 0 30px rgba(0, 119, 181, 0.2);
-}
-
-.planet-2 {
-  width: 90px;
-  height: 90px;
-  background: radial-gradient(circle at 30% 30%, #6e5494, #4b367c); /* GitHub colors */
-  box-shadow: 0 0 15px rgba(110, 84, 148, 0.5), 0 0 30px rgba(110, 84, 148, 0.2);
-}
-
-.planet-3 {
-  width: 70px;
-  height: 70px;
-  background: radial-gradient(circle at 30% 30%, #E4405F, #833AB4); /* Instagram colors */
-  box-shadow: 0 0 15px rgba(228, 64, 95, 0.5), 0 0 30px rgba(131, 58, 180, 0.2);
-}
-
-.planet-4 {
-  width: 80px;
-  height: 80px;
-  background: radial-gradient(circle at 30% 30%, #ff4f4f, #cc0000); /* Email/Contact colors */
-  box-shadow: 0 0 15px rgba(255, 79, 79, 0.5), 0 0 30px rgba(204, 0, 0, 0.2);
-}
-
-/* Ring styles */
-.ring {
+.planet-ring {
   position: absolute;
+  width: calc(var(--size) * 1.6);
+  height: calc(var(--size) * 0.45);
+  border: 1px solid color-mix(in srgb, var(--light) 35%, transparent);
   border-radius: 50%;
-  border-style: solid;
-  border-width: 1px;
-  transform: rotateX(75deg);
-  transform-style: preserve-3d;
+  transform: rotate(-28deg);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color) 8%, transparent);
   pointer-events: none;
 }
 
-.ring-outer {
-  border-width: 2px;
+.planet-container:nth-of-type(even) .planet-ring { transform: rotate(24deg); }
+
+.planet-container.is-active .planet {
+  scale: 1.1;
+  box-shadow: inset -6px -7px 12px #0008, inset 1px 1px 2px #ffffff55, 0 0 36px color-mix(in srgb, var(--color) 40%, transparent);
 }
 
-.ring-inner {
-  border-width: 1px;
+.planet-container.is-active .planet-icon { opacity: 1; }
+.planet-container.is-active .planet-surface { animation-play-state: paused; }
+
+.planet-label,
+.resume-label {
+  position: absolute;
+  top: calc(100% + 13px);
+  left: 50%;
+  transform: translate(-50%, -3px);
+  white-space: nowrap;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: #d5ddec;
+  opacity: 0;
+  transition: opacity 200ms, transform 200ms;
+  pointer-events: none;
 }
 
-/* LinkedIn rings */
-.ring-1.ring-outer {
-  width: 80px;
-  height: 80px;
-  border-color: rgba(0, 119, 181, 0.5);
-  animation: ring-rotate 8s linear infinite;
-}
+.planet-label span { margin-left: 4px; color: #8c9bb4; }
 
-.ring-1.ring-inner {
-  width: 70px;
-  height: 70px;
-  border-color: rgba(0, 119, 181, 0.3);
-  animation: ring-rotate-reverse 6s linear infinite;
-}
-
-/* GitHub rings */
-.ring-2.ring-outer {
-  width: 110px;
-  height: 110px;
-  border-color: rgba(110, 84, 148, 0.5);
-  animation: ring-rotate 10s linear infinite;
-}
-
-.ring-2.ring-inner {
-  width: 100px;
-  height: 100px;
-  border-color: rgba(110, 84, 148, 0.3);
-  animation: ring-rotate-reverse 7s linear infinite;
-}
-
-/* Instagram rings */
-.ring-3.ring-outer {
-  width: 90px;
-  height: 90px;
-  border-color: rgba(228, 64, 95, 0.5);
-  animation: ring-rotate 9s linear infinite;
-}
-
-.ring-3.ring-inner {
-  width: 80px;
-  height: 80px;
-  border-color: rgba(131, 58, 180, 0.3);
-  animation: ring-rotate-reverse 5s linear infinite;
-}
-
-.ring-4.ring-outer {
-  width: 100px;
-  height: 100px;
-  border-color: rgba(255, 79, 79, 0.5);
-  animation: ring-rotate 11s linear infinite;
-}
-
-.ring-4.ring-inner {
-  width: 90px;
-  height: 90px;
-  border-color: rgba(255, 79, 79, 0.3);
-  animation: ring-rotate-reverse 8s linear infinite;
+.planet-container.is-active .planet-label,
+.image-container:is(:hover, :focus-visible) .resume-label {
+  opacity: 1;
+  transform: translate(-50%, 0);
 }
 
 .image-container {
-  position: relative;
-  padding: 1rem;
-  /* Make sure this has higher stacking context than orbiting elements */
-  z-index: 60;
-  /* Add isolation to create a new stacking context */
-  isolation: isolate;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(172px, 18%, calc((100svh - 228px) * 0.28));
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  z-index: 10;
 }
 
-.backdrop {
+.solar-corona {
   position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at center, #2c3e50 0%, #1a1a1a 100%);
-  filter: blur(20px);
-  opacity: 0.7;
+  inset: -11%;
+  border: 1px solid #a5c1e217;
   border-radius: 50%;
-  transform: scale(0.9);
-  /* Make backdrop below the face but above other elements */
-  z-index: 45;
+  background: radial-gradient(circle, #adc6ec00 50%, #87b2e415 70%, transparent 72%);
+  box-shadow: 0 0 50px 15px #6e95c510;
+  pointer-events: none;
 }
 
 .face {
   position: relative;
-  width: 200px;
-  height: 200px;
-  border-radius: 50%;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  filter: grayscale(80%) contrast(1.1);
-  box-shadow: 0 0 25px rgba(0, 0, 0, 0.3),
-              0 0 45px rgba(0, 100, 255, 0.1);
-  transition: all 0.3s ease;
-  animation: float 4s ease-in-out infinite;
-  z-index: 50;
-  /* Add hardware acceleration for iOS */
-  -webkit-transform: translateZ(0);
-  transform: translateZ(0);
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
-  will-change: transform;
+  object-position: 50% 37%;
+  border-radius: 50%;
+  border: 1px solid #ced9ed35;
+  filter: grayscale(0.85);
+  box-shadow: 0 0 30px #0008;
+  transition: filter 400ms, border-color 400ms;
 }
 
-@keyframes float {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  25% { transform: translateY(-8px) rotate(2deg); }
-  75% { transform: translateY(8px) rotate(-2deg); }
+.image-container:is(:hover, :focus-visible) .face {
+  filter: grayscale(0.15);
+  border-color: #c6d8f273;
 }
 
-@keyframes orbit1 {
-  from { transform: rotate(0deg) translateX(160px) scale(1); }
-  to   { transform: rotate(360deg) translateX(160px) scale(1); }
+@keyframes surface-drift {
+  from { transform: translateY(-5%) rotate(-8deg); }
+  to { transform: translateY(5%) rotate(-8deg); }
 }
 
-@keyframes orbit2 {
-  from { transform: rotate(0deg) translateX(250px) scale(1); }
-  to   { transform: rotate(360deg) translateX(250px) scale(1); }
-}
-
-@keyframes orbit3 {
-  from { transform: rotate(0deg) translateX(330px) scale(1); }
-  to   { transform: rotate(360deg) translateX(330px) scale(1); }
-}
-
-@keyframes orbit4 {
-  from { transform: rotate(0deg) translateX(420px) scale(1); }
-  to   { transform: rotate(360deg) translateX(420px) scale(1); }
-}
-
-@keyframes ring-rotate {
-  from { transform: rotateX(75deg) rotate(0deg); }
-  to { transform: rotateX(75deg) rotate(360deg); }
-}
-
-@keyframes ring-rotate-reverse {
-  from { transform: rotateX(75deg) rotate(360deg); }
-  to { transform: rotateX(75deg) rotate(0deg); }
-}
-
-@keyframes rotate {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-.tooltip {
-  position: absolute;
-  transform: translate(-50%, -100%);
-  background: rgba(0, 0, 0, 0.7);
-  color: #fff;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  white-space: nowrap;
-  pointer-events: none;
-}
-
-.planet-icon {
-  width: 60%;
-  height: 60%;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  filter: brightness(0) invert(1);
-  opacity: 0.8;
-  transition: opacity 0.3s ease;
-  z-index: 40;
-}
-
-.planet-container:hover .planet-icon {
-  opacity: 1;
-}
-
-/* Add iOS-specific fixes */
-@supports (-webkit-touch-callout: none) {
+@media (max-width: 600px) {
   .solar-system {
-    /* iOS-specific adjustments */
-    perspective: 1200px;
+    width: 92vw;
+    height: auto;
+    aspect-ratio: 1;
   }
-  
-  .planet-container-1 {
-    /* Adjust orbit path to avoid face on iOS */
-    transform-origin: center center;
+
+  .image-container { width: 20%; }
+
+  .planet-container {
+    --mobile-size: calc(var(--size) * 0.62);
+    width: max(44px, var(--mobile-size));
+    height: max(44px, var(--mobile-size));
   }
-  
-  .face {
-    /* Ensure face renders correctly on iOS */
-    transform: translateZ(1px);
+
+  .planet { width: var(--mobile-size); height: var(--mobile-size); }
+
+  .planet-ring {
+    width: calc(var(--mobile-size) * 1.5);
+    height: calc(var(--mobile-size) * 0.4);
   }
+
+  .planet-label { font-size: 9px; top: calc(100% + 5px); }
+  .resume-label { font-size: 9px; }
+}
+
+@media (hover: none) {
+  .planet-label { opacity: 0.8; transform: translate(-50%, 0); }
+}
+
+@media (max-width: 600px) and (max-height: 650px) {
+  .solar-system { width: min(92vw, calc(100svh - 260px)); }
+}
+
+@media (max-height: 550px) and (min-width: 601px) {
+  .solar-system {
+    width: 92vw;
+    height: calc(100svh - 190px);
+  }
+  .planet-container { --size: 40px !important; }
 }
 </style>
