@@ -3,7 +3,7 @@
 import { onMounted, onUnmounted, ref } from "vue";
 
 const sentences = [
-    " Software Engineer focused on Back-End and AI by day 🌞 👨‍💻, problem-solving ninja by night. 🌙 🥷",
+    " Software Engineer/Ai Engineering focused on Back-End and AI by day 🌞 👨‍💻, problem-solving ninja by night. 🌙 🥷",
     " Expert in Node.js, Laravel, and Flask, with strong proficiency in their respective languages, and fixing last-minute bugs. 🐛🔧",
     " Turning swearings into APIs and database structures. 🤬 ➡️ 💻",
     " Now also turning prompts into products, with the occasional argument with the model. 🤖 🗣️",
