@@ -1,16 +1,26 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from "vue";
 
+
+export type Planet = {
+  name: string;
+  href?: string;
+  logo?: string;
+  radius: number;
+  period: number;
+  angle: number;
+  size: number;
+  light: string;
+  color: string;
+  shadow: string;
+};
+
+const props = defineProps<{ planets: Planet[]; label: string; selected?: string | null }>();
+const emit = defineEmits<{ select: [name: string, element: HTMLElement] }>();
+
 const solarSystem = ref<HTMLElement | null>(null);
 const hoveredPlanet = ref<string | null>(null);
 const focusedPlanet = ref<string | null>(null);
-
-const planets = [
-  { name: "LinkedIn", href: "https://www.linkedin.com/in/tommasolopiparo", logo: "linkedin.svg", radius: 0.205, period: 24, angle: 3.9, size: 56, light: "#8ac4e6", color: "#236996", shadow: "#091829" },
-  { name: "GitHub", href: "https://github.com/pippobaudoicon", logo: "github.svg", radius: 0.285, period: 34, angle: 0.7, size: 74, light: "#c4b3ed", color: "#69568d", shadow: "#1b142c" },
-  { name: "Instagram", href: "https://www.instagram.com/tommilopi", logo: "instagram.svg", radius: 0.365, period: 46, angle: 2.8, size: 61, light: "#e6a7ba", color: "#974864", shadow: "#2a111f" },
-  { name: "Contact me", href: "mailto:tommaso.lopiparo@gmail.com", logo: "email.svg", radius: 0.445, period: 60, angle: 5.6, size: 67, light: "#edb99c", color: "#ac6550", shadow: "#301a17" },
-];
 
 let cleanup = () => {};
 
@@ -19,6 +29,7 @@ onMounted(() => {
   if (!root) return;
 
   const links = Array.from(root.querySelectorAll<HTMLAnchorElement>(".planet-container"));
+  const planets = props.planets;
   const angles = planets.map(planet => planet.angle);
   const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
   let width = root.clientWidth;
@@ -31,14 +42,14 @@ onMounted(() => {
   function measureBodies() {
     // Reserve room for the 10% hover highlight as well as the planet itself.
     bodyRadii = links.map(link => link.querySelector<HTMLElement>(".planet")!.offsetWidth * 0.55);
-    portraitRadius = root!.querySelector<HTMLElement>(".image-container")!.offsetWidth / 2;
+    portraitRadius = root!.querySelector<HTMLElement>(".core")!.offsetWidth / 2;
   }
 
   measureBodies();
 
   function positionPlanets(delta = 0) {
     const positions = planets.map((planet, index) => {
-      const paused = hoveredPlanet.value === planet.name || focusedPlanet.value === planet.name;
+      const paused = [hoveredPlanet.value, focusedPlanet.value, props.selected].includes(planet.name);
       if (!paused && !motion.matches) angles[index] += delta * Math.PI * 2 / planet.period;
       const angle = angles[index];
       const x = Math.cos(angle) * width * planet.radius;
@@ -107,20 +118,23 @@ onUnmounted(() => cleanup());
 </script>
 
 <template>
-  <nav ref="solarSystem" class="solar-system" aria-label="Explore my solar system">
+  <nav ref="solarSystem" class="solar-system" :aria-label="label">
     <svg class="orbit-paths" viewBox="0 0 1000 1000" preserveAspectRatio="none" fill="none" aria-hidden="true">
-      <circle v-for="planet in planets" :key="planet.name" cx="500" cy="500" :r="planet.radius * 1000" />
+      <circle v-for="radius in new Set(planets.map(planet => planet.radius))" :key="radius" cx="500" cy="500" :r="radius * 1000" />
     </svg>
 
-    <a
+    <component
+      :is="planet.href ? 'a' : 'button'"
       v-for="planet in planets"
       :key="planet.name"
       :href="planet.href"
-      :target="planet.href.startsWith('https:') ? '_blank' : undefined"
-      :rel="planet.href.startsWith('https:') ? 'noopener noreferrer' : undefined"
+      :type="planet.href ? undefined : 'button'"
+      :target="planet.href?.startsWith('https:') ? '_blank' : undefined"
+      :rel="planet.href?.startsWith('https:') ? 'noopener noreferrer' : undefined"
       :aria-label="planet.name"
+      :aria-pressed="planet.href || selected === undefined ? undefined : selected === planet.name"
       class="planet-container"
-      :class="{ 'is-active': hoveredPlanet === planet.name || focusedPlanet === planet.name }"
+      :class="{ 'is-active': hoveredPlanet === planet.name || focusedPlanet === planet.name || selected === planet.name }"
       :style="{
         '--size': planet.size + 'px',
         '--light': planet.light,
@@ -132,20 +146,21 @@ onUnmounted(() => cleanup());
       @pointerleave="hoveredPlanet = null"
       @focus="focusedPlanet = planet.name"
       @blur="focusedPlanet = null"
+      @click="!planet.href && emit('select', planet.name, $event.currentTarget)"
     >
       <span class="planet-ring" aria-hidden="true" />
       <span class="planet">
         <span class="planet-surface" aria-hidden="true" />
-        <img :src="'/logos/' + planet.logo" alt="" class="planet-icon" width="28" height="28" />
+        <slot name="surface" :planet="planet" />
+        <img v-if="planet.logo" :src="'/logos/' + planet.logo" alt="" class="planet-icon" width="28" height="28" />
       </span>
-      <span class="planet-label" aria-hidden="true">{{ planet.name }} <span>↗</span></span>
-    </a>
+      <slot name="companion" :planet="planet" />
+      <span class="planet-label" aria-hidden="true">{{ planet.name }} <span v-if="planet.href">↗</span></span>
+    </component>
 
-    <a class="image-container" href="/Lo%20Piparo%20CV.pdf" target="_blank" rel="noopener noreferrer" aria-label="View Tommaso Lo Piparo's résumé">
-      <span class="solar-corona" aria-hidden="true" />
-      <img src="/Tom.webp" alt="Tommaso Lo Piparo" class="face" fetchpriority="high" width="200" height="200" decoding="async" />
-      <span class="resume-label" aria-hidden="true">View résumé ↗</span>
-    </a>
+    <div class="core">
+      <slot />
+    </div>
   </nav>
 </template>
 
@@ -180,6 +195,11 @@ onUnmounted(() => cleanup());
 
 .planet-container {
   position: absolute;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
   top: 50%;
   left: 50%;
   width: max(44px, var(--size));
@@ -243,8 +263,7 @@ onUnmounted(() => cleanup());
 .planet-container.is-active .planet-icon { opacity: 1; }
 .planet-container.is-active .planet-surface { animation-play-state: paused; }
 
-.planet-label,
-.resume-label {
+.planet-label {
   position: absolute;
   top: calc(100% + 13px);
   left: 50%;
@@ -260,49 +279,19 @@ onUnmounted(() => cleanup());
 
 .planet-label span { margin-left: 4px; color: #8c9bb4; }
 
-.planet-container.is-active .planet-label,
-.image-container:is(:hover, :focus-visible) .resume-label {
+.planet-container.is-active .planet-label {
   opacity: 1;
   transform: translate(-50%, 0);
 }
 
-.image-container {
+.core {
   position: absolute;
   left: 50%;
   top: 50%;
   width: min(172px, 18%, calc((100svh - 228px) * 0.28));
   aspect-ratio: 1;
   transform: translate(-50%, -50%);
-  border-radius: 50%;
   z-index: 10;
-}
-
-.solar-corona {
-  position: absolute;
-  inset: -11%;
-  border: 1px solid #a5c1e217;
-  border-radius: 50%;
-  background: radial-gradient(circle, #adc6ec00 50%, #87b2e415 70%, transparent 72%);
-  box-shadow: 0 0 50px 15px #6e95c510;
-  pointer-events: none;
-}
-
-.face {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: 50% 37%;
-  border-radius: 50%;
-  border: 1px solid #ced9ed35;
-  filter: grayscale(0.85);
-  box-shadow: 0 0 30px #0008;
-  transition: filter 400ms, border-color 400ms;
-}
-
-.image-container:is(:hover, :focus-visible) .face {
-  filter: grayscale(0.15);
-  border-color: #c6d8f273;
 }
 
 @keyframes surface-drift {
@@ -316,8 +305,7 @@ onUnmounted(() => cleanup());
     height: min(140vw, calc(100svh - 284px));
   }
 
-  .image-container {
-    display: grid;
+  .core {
     width: clamp(88px, 26vw, 120px);
     height: clamp(88px, 26vw, 120px);
   }
@@ -336,7 +324,6 @@ onUnmounted(() => cleanup());
   }
 
   .planet-label { font-size: 10px; top: calc(100% + 5px); }
-  .resume-label { font-size: 10px; }
 }
 
 @media (hover: none) {

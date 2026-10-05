@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from "vue";
 
+const props = defineProps<{ warp: boolean }>();
 const canvasRef = ref<HTMLCanvasElement | null>(null);
 let cleanup = () => {};
 
@@ -25,6 +26,7 @@ onMounted(() => {
   let offsetX = 0;
   let offsetY = 0;
   let elapsed = 0;
+  let warpLevel = 0;
   let previousTime = 0;
   let frame = 0;
 
@@ -34,13 +36,26 @@ onMounted(() => {
     const follow = 1 - Math.exp(-delta * 2);
     offsetX += (pointerX - offsetX) * follow;
     offsetY += (pointerY - offsetY) * follow;
+    warpLevel += ((props.warp ? 1 : 0) - warpLevel) * (1 - Math.exp(-delta * 7));
     ctx.clearRect(0, 0, width, height);
 
     for (const star of stars) {
       const x = ((star.x * width + elapsed * star.depth * 1.1 + offsetX * star.depth) % width + width) % width;
       const y = ((star.y * height + elapsed * star.depth * 0.45 + offsetY * star.depth) % height + height) % height;
       const twinkle = motion.matches ? 1 : 0.8 + Math.sin(elapsed * 0.45 + star.phase) * 0.2;
-      ctx.fillStyle = `rgba(200, 216, 244, ${star.opacity * twinkle})`;
+      const alpha = star.opacity * twinkle;
+      if (warpLevel > 0.01) {
+        // Jumping between systems: stretch each star away from the centre.
+        const stretch = warpLevel * star.depth * 0.35;
+        ctx.strokeStyle = `rgba(200, 216, 244, ${Math.min(1, alpha * (1 + warpLevel))})`;
+        ctx.lineWidth = star.radius * 1.6;
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x + (x - width / 2) * stretch, y + (y - height / 2) * stretch);
+        ctx.stroke();
+        continue;
+      }
+      ctx.fillStyle = `rgba(200, 216, 244, ${alpha})`;
       ctx.beginPath();
       ctx.arc(x, y, star.radius, 0, Math.PI * 2);
       ctx.fill();
