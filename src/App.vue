@@ -159,7 +159,6 @@ h1:focus { outline: none; }
 .highlight { color: #bbd8cd; }
 
 .description {
-  height: 3.4em;
   margin: 0 auto;
   font-size: 13px;
   line-height: 1.7;
@@ -170,7 +169,7 @@ h1:focus { outline: none; }
   .back { top: 14px; left: 14px; padding: 6px 12px; font-size: 11px; }
   .text-container { padding-top: 22px; }
   h1 { font-size: clamp(24px, 6vw, 32px); }
-  .description { font-size: 12px; height: 5.1em; }
+  .description { font-size: 12px; }
 }
 
 @media (max-width: 600px) {
