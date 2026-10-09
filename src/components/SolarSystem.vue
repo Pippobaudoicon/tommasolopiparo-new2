@@ -28,7 +28,7 @@ onMounted(() => {
   const root = solarSystem.value;
   if (!root) return;
 
-  const links = Array.from(root.querySelectorAll<HTMLAnchorElement>(".planet-container"));
+  const links = Array.from(root.querySelectorAll<HTMLElement>(".planet-container"));
   const planets = props.planets;
   const angles = planets.map(planet => planet.angle);
   const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -123,16 +123,9 @@ onUnmounted(() => cleanup());
       <circle v-for="radius in new Set(planets.map(planet => planet.radius))" :key="radius" cx="500" cy="500" :r="radius * 1000" />
     </svg>
 
-    <component
-      :is="planet.href ? 'a' : 'button'"
+    <div
       v-for="planet in planets"
       :key="planet.name"
-      :href="planet.href"
-      :type="planet.href ? undefined : 'button'"
-      :target="planet.href?.startsWith('https:') ? '_blank' : undefined"
-      :rel="planet.href?.startsWith('https:') ? 'noopener noreferrer' : undefined"
-      :aria-label="planet.name"
-      :aria-pressed="planet.href || selected === undefined ? undefined : selected === planet.name"
       class="planet-container"
       :class="{ 'is-active': hoveredPlanet === planet.name || focusedPlanet === planet.name || selected === planet.name }"
       :style="{
@@ -140,23 +133,34 @@ onUnmounted(() => cleanup());
         '--light': planet.light,
         '--color': planet.color,
         '--shadow': planet.shadow,
-        transform: `translate(${Math.cos(planet.angle) * 100 * planet.radius}%, ${Math.sin(planet.angle) * 100 * planet.radius}%)`,
       }"
       @pointerenter="hoveredPlanet = $event.pointerType === 'mouse' ? planet.name : null"
       @pointerleave="hoveredPlanet = null"
-      @focus="focusedPlanet = planet.name"
-      @blur="focusedPlanet = null"
-      @click="!planet.href && emit('select', planet.name, $event.currentTarget)"
+      @focusin="focusedPlanet = planet.name"
+      @focusout="focusedPlanet = null"
     >
-      <span class="planet-ring" aria-hidden="true" />
-      <span class="planet">
-        <span class="planet-surface" aria-hidden="true" />
-        <slot name="surface" :planet="planet" />
-        <img v-if="planet.logo" :src="'/logos/' + planet.logo" alt="" class="planet-icon" width="28" height="28" />
-      </span>
+      <component
+        :is="planet.href ? 'a' : 'button'"
+        :href="planet.href"
+        :type="planet.href ? undefined : 'button'"
+        :target="planet.href?.startsWith('https:') ? '_blank' : undefined"
+        :rel="planet.href?.startsWith('https:') ? 'noopener noreferrer' : undefined"
+        :aria-label="planet.name"
+        :aria-pressed="planet.href || selected === undefined ? undefined : selected === planet.name"
+        class="planet-link"
+        @click="!planet.href && emit('select', planet.name, $event.currentTarget)"
+      >
+        <span class="planet-ring" aria-hidden="true" />
+        <span class="planet">
+          <span class="planet-surface" aria-hidden="true" />
+          <slot name="surface" :planet="planet" />
+          <img v-if="planet.logo" :src="'/logos/' + planet.logo" alt="" class="planet-icon" width="28" height="28" />
+        </span>
+        <span class="planet-label" aria-hidden="true">{{ planet.name }} <span v-if="planet.href">↗</span></span>
+      </component>
+      <!-- Outside the link, so a companion can hold its own buttons. -->
       <slot name="companion" :planet="planet" />
-      <span class="planet-label" aria-hidden="true">{{ planet.name }} <span v-if="planet.href">↗</span></span>
-    </component>
+    </div>
 
     <div class="core">
       <slot />
@@ -195,11 +199,6 @@ onUnmounted(() => cleanup());
 
 .planet-container {
   position: absolute;
-  padding: 0;
-  border: 0;
-  background: none;
-  color: inherit;
-  cursor: pointer;
   top: 50%;
   left: 50%;
   width: max(44px, var(--size));
@@ -208,6 +207,19 @@ onUnmounted(() => cleanup());
   place-items: center;
   border-radius: 50%;
   will-change: transform;
+}
+
+.planet-link {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: inherit;
+  cursor: pointer;
 }
 
 .planet {
